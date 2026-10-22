@@ -1,5 +1,3 @@
-// 必须第一个加载：浏览器里没有 Tauri 后端时，先把假后端装上（见 mock/install.ts）
-import "./mock/install";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";

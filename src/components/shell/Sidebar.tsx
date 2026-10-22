@@ -14,11 +14,9 @@ import {
   Globe,
   Info,
   Layers,
-  LayoutGrid,
   MessageCircle,
   Route,
   Send,
-  Server,
   Settings,
   SlidersHorizontal,
   Syringe,
@@ -31,7 +29,6 @@ import {
   isAppPage,
   VISIBLE_SETTINGS_SECTIONS,
 } from "@/lib/navigation";
-import { SkillsIcon } from "@/components/BrandIcons";
 import { useUpdate } from "@/contexts/UpdateContext";
 import { sidebarWidth, useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import type { AppNavStatus } from "@/hooks/useSidebarStatus";
@@ -214,7 +211,6 @@ function MainDirectory({
   visibleApps,
   onSelectApp,
   onSelectPage,
-  appsUpdateAvailable = false,
 }: DirectoryProps) {
   const { t } = useTranslation();
   const { hasUpdate } = useUpdate();
@@ -226,8 +222,6 @@ function MainDirectory({
     label: string;
     icon: IconComponent;
   }[] = [
-    { page: "mcp", label: "MCP", icon: Server },
-    { page: "skills", label: "Skills", icon: SkillsIcon },
     {
       page: "inject",
       label: t("nav.inject", { defaultValue: "提示词注入" }),
@@ -329,18 +323,6 @@ function MainDirectory({
           collapsed ? "flex-col" : "gap-1 px-2",
         )}
       >
-        <NavItem
-          collapsed={collapsed}
-          compact={!collapsed}
-          selected={view === "apps"}
-          icon={LayoutGrid}
-          label={t("nav.apps")}
-          title={
-            appsUpdateAvailable ? t("nav.appsHasUpdate") : t("nav.appsTitle")
-          }
-          dot={appsUpdateAvailable}
-          onClick={() => onSelectPage("apps")}
-        />
         <NavItem
           collapsed={collapsed}
           compact={!collapsed}

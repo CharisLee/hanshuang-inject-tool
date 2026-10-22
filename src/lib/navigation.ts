@@ -51,20 +51,16 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
  * 代码和路由都还在，想恢复时把页面名加回这里即可。
  */
 export const VISIBLE_GLOBAL_PAGES: GlobalPage[] = [
-  "mcp",
-  "skills",
-  "skillsDiscovery",
   "inject",
   "seep",
   "guide",
-  "apps",
 ];
 
-/** 设置里保留的分组。应用配置、路由、网络、数据暂不显示。 */
-export const VISIBLE_SETTINGS_SECTIONS: SettingsSection[] = [
-  "general",
-  "about",
-];
+/**
+ * 设置里保留的分组。应用配置、路由、网络、数据依赖未移植的 Rust 后端，暂不显示；
+ * 「通用」已经改为浏览器本地设置（语言、主题、侧栏应用），不依赖后端。
+ */
+export const VISIBLE_SETTINGS_SECTIONS: SettingsSection[] = ["general", "about"];
 
 const APP_PAGES: AppPage[] = [
   "providers",

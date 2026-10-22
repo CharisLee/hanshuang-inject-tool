@@ -10,7 +10,10 @@ interface AboutSectionProps {
 }
 
 // 应用自身版本（getVersion，本地毫秒级、无网络）也缓存一份，纯为重挂时免去 loading 闪烁。
+// 浏览器/便携版没有 Tauri 的 getVersion，退回构建时注入的 package.json 版本。
 let appVersionCache: string | null = null;
+const LOCAL_APP_VERSION =
+  typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : null;
 
 /**
  * 设置 → 关于：品牌、版本、便携模式。
@@ -20,9 +23,11 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
   const { t } = useTranslation();
   // 惰性初始化自模块缓存：重挂时首帧即渲染上次的值，避免 loading 闪烁；首次挂载缓存
   // 为空则回退到原始初值（null / loading）。
-  const [version, setVersion] = useState<string | null>(() => appVersionCache);
+  const [version, setVersion] = useState<string | null>(
+    () => appVersionCache ?? LOCAL_APP_VERSION,
+  );
   const [isLoadingVersion, setIsLoadingVersion] = useState(
-    () => appVersionCache === null,
+    () => appVersionCache === null && LOCAL_APP_VERSION === null,
   );
 
   useEffect(() => {
@@ -37,7 +42,7 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
       } catch (error) {
         console.error("[AboutSection] Failed to load app version", error);
         if (active) {
-          setVersion(null);
+          setVersion(LOCAL_APP_VERSION);
         }
       } finally {
         if (active) {

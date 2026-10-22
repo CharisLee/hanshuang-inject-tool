@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import type {
   Settings,
   WebDavSyncSettings,
@@ -30,12 +30,76 @@ export interface WebDavSyncResult {
   status: string;
 }
 
+/** 浏览器/便携版：设置保存在 localStorage，不依赖 Tauri 后端。 */
+const LOCAL_SETTINGS_KEY = "cc-switch-settings";
+
+type VisibleApps = NonNullable<Settings["visibleApps"]>;
+
+const LOCAL_VISIBLE_APPS: VisibleApps = {
+  claude: true,
+  "claude-desktop": true,
+  codex: true,
+  gemini: true,
+  grokbuild: true,
+  opencode: true,
+  openclaw: true,
+  hermes: true,
+  pi: true,
+  mcode: true,
+  dsh: true,
+};
+
+const LOCAL_DEFAULT_SETTINGS: Settings = {
+  showInTray: false,
+  minimizeToTrayOnClose: false,
+  language: "zh",
+  visibleApps: LOCAL_VISIBLE_APPS,
+};
+
+function readLocalSettings(): Settings {
+  let stored: Partial<Settings> = {};
+  try {
+    const raw = window.localStorage.getItem(LOCAL_SETTINGS_KEY);
+    if (raw) stored = JSON.parse(raw) as Partial<Settings>;
+  } catch {
+    // 损坏的本地设置直接忽略，使用默认值
+  }
+  const language = window.localStorage.getItem("language");
+  return {
+    ...LOCAL_DEFAULT_SETTINGS,
+    ...stored,
+    visibleApps: {
+      ...LOCAL_VISIBLE_APPS,
+      ...(stored.visibleApps ?? {}),
+    } as VisibleApps,
+    language: (stored.language ??
+      (language === "en" ||
+      language === "ja" ||
+      language === "tr" ||
+      language === "zh-TW"
+        ? language
+        : "zh")) as Settings["language"],
+  };
+}
+
+function writeLocalSettings(settings: Settings): void {
+  window.localStorage.setItem(LOCAL_SETTINGS_KEY, JSON.stringify(settings));
+  if (settings.language) {
+    window.localStorage.setItem("language", settings.language);
+  }
+}
+
 export const settingsApi = {
   async get(): Promise<Settings> {
+    if (!isTauri()) return readLocalSettings();
     return await invoke("get_settings");
   },
 
   async save(settings: Settings): Promise<boolean> {
+    if (!isTauri()) {
+      writeLocalSettings(settings);
+      return true;
+    }
     return await invoke("save_settings", { settings });
   },
 
@@ -86,6 +150,7 @@ export const settingsApi = {
   },
 
   async isPortable(): Promise<boolean> {
+    if (!isTauri()) return false;
     return await invoke("is_portable_mode");
   },
 
@@ -249,6 +314,10 @@ export const settingsApi = {
       }
     } catch {
       throw new Error("Invalid URL");
+    }
+    if (!isTauri()) {
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
     }
     await invoke("open_external", { url });
   },

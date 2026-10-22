@@ -1,21 +1,24 @@
-# 寒霜注入工具（浏览器版，假数据）
+# 寒霜注入工具
 
 基于 [CC Switch](https://github.com/farion1231/cc-switch) v4.0.16 的前端改造：
-去掉了 Rust 后端，换成 `src/mock/` 里的假数据，在浏览器里就能跑；品牌、图标和界面
-已经改成「寒霜注入工具」，只保留本机提示词注入和网关注入。
-原版页面都在代码里；当前界面为：左侧应用列表 + MCP / Skills + 提示词注入（本机文件 / 网关注入）+ Seep 工具 + 使用教程 + 应用 + 设置（通用 / 关于）。
+去掉 Rust/Tauri 后端，改成「前端 + 本地 Node 服务」的便携工具，在浏览器里运行。
+品牌、图标和界面已经改成「寒霜注入工具」，只保留本机提示词注入和网关注入。
+
+当前界面为：左侧应用列表（提示词工作台）+ 提示词注入（本机文件 / 网关注入）+ Seep 工具 + 使用教程 + 设置（通用 / 关于）。
+所有页面的数据都来自真实本地服务或浏览器本地存储，不包含演示数据。
 
 ## 界面精简
 
 侧栏只保留需要的入口，其余页面代码仍在，想恢复时改 `src/lib/navigation.ts` 里的
 `VISIBLE_GLOBAL_PAGES` / `VISIBLE_SETTINGS_SECTIONS`：
 
-- 全局页显示「MCP」「Skills」「提示词注入」「Seep 工具」「使用教程」；提示词注入默认打开「网关注入」，另一个页签是「本机文件」。
-- 提示词、会话、授权中心、用量统计的入口已隐藏。
-- 设置只保留「通用」「关于」；应用配置、路由、网络、数据的入口已隐藏。
-- 左下角保留「应用」「设置」两个工具入口，以及「满血中转站」「加入 TG 群」「加入 QQ 群」三个外链。
-- 品牌改为「寒霜注入工具」：侧栏、关于页、浏览器标题、托盘标题和图标都已换掉；
-  通用设置里的额度显示、供应商搜索、终端等 API / 供应商相关项已移除。
+- 全局页显示「提示词注入」「Seep 工具」「使用教程」；提示词注入默认打开「网关注入」，另一个页签是「本机文件」。
+- MCP、Skills、应用（工具安装）、提示词、会话、授权中心、用量统计的入口已隐藏；
+  这些页面依赖原版 Rust 后端，不再提供。
+- 设置只保留「通用」「关于」：通用页的语言、主题、侧栏应用开关都保存在浏览器本地，
+  不依赖后端；应用配置、路由、网络、数据的入口已隐藏。
+- 左下角保留「设置」入口，以及「满血中转站」「加入 TG 群」「加入 QQ 群」三个外链。
+- 品牌改为「寒霜注入工具」：侧栏、关于页、浏览器标题、托盘标题和图标都已换掉。
 
 ## 运行
 
@@ -160,8 +163,6 @@ Codex 的请求可以真正经过人物卡代理：
   MiniMax Code（`~/.minimax/mcp.json`）。Hermes 使用 YAML，暂不自动写入。
 - **备份**：所有配置写入前备份到 `~/.cc-switch/backups/seep-mcp/`；TOML 用标记块
   插入，尽量保留原有注释和其他 MCP 条目。
-- **MCP 页联动**：接入后左侧「MCP」页会把 `seep` 作为真实条目显示，勾选 / 取消会直接
-  写对应客户端的配置；其他 MCP 条目仍是演示数据。
 - **换目录**：页面顶部填 Seep 仓库路径，点「重新连接」，会记到
   `~/.cc-switch/seep-config.json`。环境变量 `SEEP_ROOT` / `SEEP_PYTHON` 可覆盖默认值。
 - **依赖**：本机 Python 3.10+ 和 `pip install "mcp>=1.20,<1.29"`；Seep 目录里的
@@ -183,33 +184,23 @@ Codex 的请求可以真正经过人物卡代理：
 > Seep-Reverse-Lab 使用 GPL-3.0。这里以独立进程方式调用、不复制其源码；如果对外分发
 > Seep 本体，需要同时遵守 GPL-3.0（提供源码与许可）。这些工具只应在已授权的目标上使用。
 
-## 假数据在哪
+## 数据来源
 
-```
-src/mock/
-├── install.ts            入口第一行加载：浏览器里没有 Tauri 后端时，接住所有后端调用
-├── backend.ts            按命令名分发；没写到的命令按名字给空值，并在控制台打一条 [mock]
-└── handlers/
-    ├── core.ts             设置、授权账号、启动时的各种检查
-    ├── providers.ts        供应商页：各应用的供应商、模式、聚合名单、路由队列、卡片额度
-    ├── extensions.ts       MCP、Skills、提示词
-    ├── sessions.ts         会话列表和对话记录
-    └── usage.ts            用量统计、应用页的版本信息
-```
-
-- 改演示内容：直接改上面这些文件里的数据。
-- 接自己的后端：把 `src/lib/api/` 里对应的 `invoke("命令名")` 换成自己的接口请求，
-  或者在 `handlers/` 里把假数据换成 `fetch` 你的服务器。
-- 打开浏览器控制台，带 `[mock]` 的行就是页面调用了、但还没写假数据的命令。
+- **提示词库 / 文件注入 / 人物卡 / Codex 资产**：由 `server/` 里的 Vite 中间件直接读写本机文件，
+  数据落在 `~/.cc-switch/`（提示词库、备份）和对应 Agent 的全局提示词文件。
+- **Seep 工具**：`server/seepPlugin.ts` 通过 Python 桥调用本机的 Seep MCP Server。
+- **通用设置**：语言、主题、侧栏应用显示保存在浏览器 `localStorage`，
+  不经过任何后端，也不会上传。
+- 原版依赖 Rust 后端的供应商、用量、会话、MCP、Skills、应用安装页面已从界面移除，
+  相关代码保留但不再渲染；仓库中不包含 mock/演示数据。
 
 ## 和原版的区别
 
 在原版基础上改了品牌、精简了入口，并加了提示词注入：
 
 - 品牌改为「寒霜注入工具」，图标换成 `src/assets/icons/hanshuang-logo.png`
-- 供应商 / 授权中心 / 用量统计 / 会话等 API 相关入口不再渲染
-- `src/main.tsx` 第一行加了 `import "./mock/install"`
-- 新增 `src/mock/`
+- 供应商 / 授权中心 / 用量统计 / 会话 / MCP / Skills / 应用等依赖 Rust 后端的入口不再渲染
+- 删除了 `src/mock/` 演示后端；通用设置改为浏览器本地设置
 - 新增 `server/injectApiPlugin.ts`、`src/lib/injectApi.ts`、`src/components/inject/`
 - 新增 `server/promptCardsPlugin.ts`、`src/lib/promptCardsApi.ts`，以及主界面的
   `src/components/inject/RoleCardStrip.tsx`
@@ -219,9 +210,9 @@ src/mock/
 - `package.json`：去掉 Tauri 命令行和测试相关的包，`dev` 直接起 Vite，端口 5190
 - 删掉了 `src/` 里的单元测试文件（`*.test.ts(x)`）
 
-用 Tauri 打包成桌面程序时，`mock/install.ts` 会自动跳过，调用照常走真正的后端；
-注入页依赖 Vite 中间件，打包成 Tauri 时需要把 `server/injectApiPlugin.ts` 的逻辑
-搬进 Rust 后端（`src-tauri/src/prompt_files.rs` 已有现成的文件读写能力）。
+如果以后要重新打包成 Tauri 桌面程序，需要把 `server/` 里的 Vite 中间件逻辑
+搬进 Rust 后端（`src-tauri/src/prompt_files.rs` 已有现成的文件读写能力），
+并重新接入设置等页面依赖的 Tauri 命令。
 
 ## 版权
 

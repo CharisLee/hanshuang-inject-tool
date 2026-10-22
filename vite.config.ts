@@ -1,4 +1,5 @@
 import path from "node:path";
+import { readFileSync } from "node:fs";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { codeInspectorPlugin } from "code-inspector-plugin";
@@ -9,8 +10,17 @@ import { promptCardsPlugin } from "./server/promptCardsPlugin";
 import { seepPlugin } from "./server/seepPlugin";
 import { cardProxyPlugin } from "./server/cardProxyPlugin";
 
+const packageVersion = (
+  JSON.parse(
+    readFileSync(path.resolve(__dirname, "package.json"), "utf8"),
+  ) as { version: string }
+).version;
+
 export default defineConfig(({ command }) => ({
   root: "src",
+  define: {
+    __APP_VERSION__: JSON.stringify(packageVersion),
+  },
   plugins: [
     command === "serve" &&
       codeInspectorPlugin({

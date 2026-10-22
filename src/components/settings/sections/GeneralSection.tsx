@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { ChevronRight, Monitor, Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import type { SettingsFormState } from "@/hooks/useSettings";
 import { useTheme } from "@/components/theme-provider";
 import { SegmentedControl } from "@/components/ui/segmented-control";
@@ -10,13 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { isLinux } from "@/lib/platform";
+import { AppToggleGroup } from "@/components/common/AppToggleGroup";
+import { APP_IDS, DEFAULT_VISIBLE_APPS } from "@/config/appConfig";
+import type { AppId } from "@/lib/api/types";
 import {
   SettingsBlock,
   SettingsCard,
   SettingsRow,
-  SettingsSwitchRow,
 } from "@/components/settings/SettingsLayout";
 
 type Language = SettingsFormState["language"];
@@ -32,16 +32,23 @@ const LANGUAGES: { value: Language; labelKey: string }[] = [
 interface GeneralSectionProps {
   settings: SettingsFormState;
   onAutoSave: (updates: Partial<SettingsFormState>) => Promise<boolean>;
-  onOpenApps: () => void;
 }
 
-export function GeneralSection({
-  settings,
-  onAutoSave,
-  onOpenApps,
-}: GeneralSectionProps) {
+/**
+ * 通用设置：只保留在浏览器/便携版里真实生效的项。
+ * 语言与主题保存在 localStorage；侧栏应用开关写入设置对象，
+ * 由 App 实时读取。依赖桌面后端的开机自启、托盘、工具更新检查不在此页。
+ */
+export function GeneralSection({ settings, onAutoSave }: GeneralSectionProps) {
   const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
+  const visibleApps = settings.visibleApps ?? DEFAULT_VISIBLE_APPS;
+
+  const toggleApp = (app: AppId, enabled: boolean) => {
+    void onAutoSave({
+      visibleApps: { ...visibleApps, [app]: enabled },
+    });
+  };
 
   return (
     <>
@@ -108,77 +115,13 @@ export function GeneralSection({
           <SettingsRow
             label={t("settings.general.visibleApps")}
             control={
-              <Button variant="quiet" size="compact" onClick={onOpenApps}>
-                {t("settings.general.goToApps")}
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
+              <AppToggleGroup
+                apps={visibleApps}
+                onToggle={toggleApp}
+                appIds={APP_IDS}
+              />
             }
           />
-        </SettingsCard>
-      </SettingsBlock>
-
-      <SettingsBlock title={t("settings.general.updates")}>
-        <SettingsCard>
-          <SettingsSwitchRow
-            label={t("settings.general.checkToolUpdates")}
-            help={{
-              title: t("settings.general.checkToolUpdates"),
-              body: t("settings.general.checkToolUpdatesHelp"),
-            }}
-            checked={settings.checkToolUpdatesOnStartup ?? false}
-            onCheckedChange={(value) =>
-              void onAutoSave({ checkToolUpdatesOnStartup: value })
-            }
-          />
-        </SettingsCard>
-      </SettingsBlock>
-
-      <SettingsBlock title={t("settings.general.windowAndTerminal")}>
-        <SettingsCard>
-          <SettingsSwitchRow
-            label={t("settings.launchOnStartup")}
-            checked={!!settings.launchOnStartup}
-            onCheckedChange={(value) =>
-              void onAutoSave({ launchOnStartup: value })
-            }
-          />
-          {settings.launchOnStartup && (
-            <SettingsSwitchRow
-              label={t("settings.silentStartup")}
-              help={{
-                title: t("settings.silentStartup"),
-                body: t("settings.silentStartupDescription"),
-              }}
-              checked={!!settings.silentStartup}
-              onCheckedChange={(value) =>
-                void onAutoSave({ silentStartup: value })
-              }
-            />
-          )}
-          <SettingsSwitchRow
-            label={t("settings.minimizeToTray")}
-            help={{
-              title: t("settings.minimizeToTray"),
-              body: t("settings.general.minimizeToTrayHelp"),
-            }}
-            checked={settings.minimizeToTrayOnClose}
-            onCheckedChange={(value) =>
-              void onAutoSave({ minimizeToTrayOnClose: value })
-            }
-          />
-          {isLinux() && (
-            <SettingsSwitchRow
-              label={t("settings.useAppWindowControls")}
-              help={{
-                title: t("settings.useAppWindowControls"),
-                body: t("settings.useAppWindowControlsDescription"),
-              }}
-              checked={!!settings.useAppWindowControls}
-              onCheckedChange={(value) =>
-                void onAutoSave({ useAppWindowControls: value })
-              }
-            />
-          )}
         </SettingsCard>
       </SettingsBlock>
     </>

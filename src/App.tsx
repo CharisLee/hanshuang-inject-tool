@@ -170,8 +170,9 @@ function App() {
   });
   // 提示词注入页落在哪个页签：默认「网关注入」（主要功能），主界面人物卡「管理」也落到这里
   const [injectView, setInjectView] = useState<InjectView>("gateway");
-  const [settingsSection, setSettingsSection] =
-    useState<SettingsSection>("general");
+  const [settingsSection, setSettingsSection] = useState<SettingsSection>(
+    VISIBLE_SETTINGS_SECTIONS[0] ?? "about",
+  );
   const [appConfigScrollTarget, setAppConfigScrollTarget] = useState<AppId>();
   // 进设置前停留的页面：设置目录里的「← 返回」回到这里
   const settingsReturnViewRef = useRef<View>("providers");
@@ -668,9 +669,11 @@ function App() {
     if (currentViewRef.current !== "settings") {
       settingsReturnViewRef.current = currentViewRef.current;
     }
-    // 设置里只保留「通用 / 关于」；从旧入口带着别的分组进来时退回通用
+    // 设置里只保留真实可用的分组；从旧入口带着别的分组进来时退回第一个可见分组
     setSettingsSection(
-      VISIBLE_SETTINGS_SECTIONS.includes(section) ? section : "general",
+      VISIBLE_SETTINGS_SECTIONS.includes(section)
+        ? section
+        : (VISIBLE_SETTINGS_SECTIONS[0] ?? "about"),
     );
     setAppConfigScrollTarget(appConfigTarget);
     setCurrentView("settings");
@@ -1497,7 +1500,6 @@ function App() {
           section={settingsSection}
           appConfigScrollTarget={appConfigScrollTarget}
           onImportSuccess={handleImportSuccess}
-          onOpenApps={() => setCurrentView("apps")}
           onOpenApp={selectApp}
         />
       );
