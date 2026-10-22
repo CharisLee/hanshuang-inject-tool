@@ -220,6 +220,19 @@ Codex 的请求可以真正经过人物卡代理：
 MIT 只授权代码，不授权品牌：对外发布时不要用「CC Switch」名称和它的 logo；
 `src/icons/` 里的各家 logo 是各公司的商标。
 
+## 提示词模板
+
+`prompts/` 目录附带 6 份可直接导入的寒霜提示词模板：
+
+- [寒霜v1.2.md](prompts/寒霜v1.2.md)
+- [寒霜v3.md](prompts/寒霜v3.md)
+- [寒霜v4.md](prompts/寒霜v4.md)
+- [寒霜v4-claude.md](prompts/寒霜v4-claude.md)
+- [寒霜v5.md](prompts/寒霜v5.md)
+- [寒霜-变体B-v3-英文.md](prompts/寒霜-变体B-v3-英文.md)
+
+使用方式：提示词工作台 → 添加提示词 → 把文件内容粘贴进去 → 勾选「保存后立即启用」→ 保存。
+
 ## 交流群
 
 - **QQ 群**：点击一键加入 [ai交流分析4群](https://qm.qq.com/q/Y36tSKcday)（群号：1091769694）
