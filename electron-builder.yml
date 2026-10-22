@@ -1,0 +1,44 @@
+appId: com.hanshuang.inject
+productName: 寒霜注入工具
+copyright: Copyright © 2026 Hanshuang
+
+directories:
+  output: release-electron
+  buildResources: build
+
+files:
+  - electron/**
+  - package.json
+
+extraResources:
+  - from: release/寒霜注入工具-1.0.0/server.mjs
+    to: app/server.mjs
+  - from: dist
+    to: app/dist
+  - from: build/icon.ico
+    to: icon.ico
+
+asar: true
+compression: normal
+
+win:
+  target:
+    - target: portable
+      arch:
+        - x64
+  icon: build/icon.ico
+  artifactName: ${productName}-便携版-${version}.${ext}
+
+portable:
+  artifactName: ${productName}-便携版-${version}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 寒霜注入工具
+  uninstallDisplayName: 寒霜注入工具
+  artifactName: ${productName}-Setup-${version}.${ext}
