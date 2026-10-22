@@ -219,3 +219,11 @@ Codex 的请求可以真正经过人物卡代理：
 原版代码 MIT 许可，Copyright (c) 2025 Jason Young，许可原文见 [LICENSE-cc-switch](LICENSE-cc-switch)，发布时保留这个文件。
 MIT 只授权代码，不授权品牌：对外发布时不要用「CC Switch」名称和它的 logo；
 `src/icons/` 里的各家 logo 是各公司的商标。
+
+## 交流群
+
+QQ 群：**ai交流分析4群**（群号：1091769694）
+
+<img src="docs/images/qq-group.jpg" alt="QQ 交流群二维码" width="320" />
+
+扫码加入群聊，反馈问题或交流用法。
