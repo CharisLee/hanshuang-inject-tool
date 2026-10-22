@@ -222,8 +222,9 @@ MIT 只授权代码，不授权品牌：对外发布时不要用「CC Switch」�
 
 ## 交流群
 
-QQ 群：**ai交流分析4群**（群号：1091769694）
+- **QQ 群**：点击一键加入 [ai交流分析4群](https://qm.qq.com/q/Y36tSKcday)（群号：1091769694）
+- **Telegram 群**：[加入 TG 群](https://t.me/aiyiaou)
 
 <img src="docs/images/qq-group.jpg" alt="QQ 交流群二维码" width="320" />
 
-扫码加入群聊，反馈问题或交流用法。
+也可以扫码加入 QQ 群，反馈问题或交流用法。
