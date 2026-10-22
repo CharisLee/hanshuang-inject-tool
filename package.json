@@ -1,6 +1,6 @@
 {
   "name": "hanshuang-inject-tool",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "description": "寒霜注入工具：本机提示词注入 + 网关注入（基于 CC Switch 前端，MIT，见 LICENSE-cc-switch）",
   "type": "module",
   "main": "electron/main.cjs",
