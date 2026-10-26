@@ -18,6 +18,6 @@ jobs:
     steps:
       - name: Merge upstream aimeoa/hanshuang-inject-tool into this fork
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           gh api -X POST "repos/${GITHUB_REPOSITORY}/merge-upstream" -f branch="main"
